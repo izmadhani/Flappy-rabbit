@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinnamoroll Flappy Bird</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Fredoka One', cursive;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            background: linear-gradient(180deg, #e1f5fe 0%, #b3e5fc 100%);
+            border: 4px solid #0277bd;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(2, 119, 189, 0.3);
+        }
+        
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50px;
+            opacity: 0.8;
+            animation: cloudFloat 25s infinite linear;
+        }
+        
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50px;
+        }
+        
+        .cloud1 {
+            width: 80px;
+            height: 40px;
+            top: 15%;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+        
+        .cloud1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+        
+        .cloud2 {
+            width: 60px;
+            height: 30px;
+            top: 35%;
+            left: -80px;
+            animation-delay: -8s;
+        }
+        
+        .cloud2::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 15px;
+        }
+        
+        .cloud2::after {
+            width: 50px;
+            height: 30px;
+            top: -10px;
+            right: 15px;
+        }
+        
+        .cloud3 {
+            width: 70px;
+            height: 35px;
+            top: 60%;
+            left: -90px;
+            animation-delay: -15s;
+        }
+        
+        .cloud3::before {
+            width: 45px;
+            height: 45px;
+            top: -22px;
+            left: 12px;
+        }
+        
+        .cloud3::after {
+            width: 55px;
+            height: 35px;
+            top: -12px;
+            right: 12px;
+        }
+        
+        .cloud4 {
+            width: 90px;
+            height: 45px;
+            top: 80%;
+            left: -110px;
+            animation-delay: -20s;
+        }
+        
+        .cloud4::before {
+            width: 55px;
+            height: 55px;
+            top: -28px;
+            left: 15px;
+        }
+        
+        .cloud4::after {
+            width: 65px;
+            height: 45px;
+            top: -18px;
+            right: 15px;
+        }
+        
+        @keyframes cloudFloat {
+            0% { transform: translateX(-120px); }
+            100% { transform: translateX(520px); }
+        }
+        
+        .bird {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            left: 80px;
+            background: #f5f5f5;
+            border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+            border: 3px solid #8d6e63;
+            transition: transform 0.1s ease;
+            z-index: 10;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 2px 8px rgba(141,110,99,0.2);
+        }
+        
+        .bird::before {
+            content: '● ●';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #3e2723;
+            font-size: 10px;
+            letter-spacing: 6px;
+        }
+        
+        .bird::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 6px;
+            background: #ffab91;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            border: 1px solid #8d6e63;
+        }
+        
+        .ear-left, .ear-right {
+            position: absolute;
+            width: 14px;
+            height: 38px;
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 2px solid #8d6e63;
+            border-radius: 50% 50% 50% 50% / 85% 85% 15% 15%;
+            transition: transform 0.2s ease;
+            transform-origin: bottom center;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 1px 3px rgba(141,110,99,0.3);
+        }
+        
+        .ear-left::before, .ear-right::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 25px;
+            background: linear-gradient(180deg, #ffccbc 0%, #ffab91 100%);
+            border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%;
+            top: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 1px solid #8d6e63;
+        }
+        
+        .ear-left {
+            top: -30px;
+            left: 10px;
+            transform: rotate(-10deg);
+        }
+        
+        .ear-right {
+            top: -30px;
+            right: 10px;
+            transform: rotate(10deg);
+        }
+        
+        .ear-bounce {
+            animation: earBounce 0.3s ease-out;
+        }
+        
+        @keyframes earBounce {
+            0% { transform: rotate(-10deg) translateY(0); }
+            30% { transform: rotate(-15deg) translateY(-3px); }
+            60% { transform: rotate(-5deg) translateY(-1px); }
+            100% { transform: rotate(-10deg) translateY(0); }
+        }
+        
+        .ear-bounce-right {
+            animation: earBounceRight 0.3s ease-out;
+        }
+        
+        @keyframes earBounceRight {
+            0% { transform: rotate(10deg) translateY(0); }
+            30% { transform: rotate(15deg) translateY(-3px); }
+            60% { transform: rotate(5deg) translateY(-1px); }
+            100% { transform: rotate(10deg) translateY(0); }
+        }
+        
+        .pipe {
+            position: absolute;
+            width: 60px;
+            background: linear-gradient(90deg, #29b6f6 0%, #0288d1 100%);
+            border: 3px solid #01579b;
+        }
+        
+        .pipe::before {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 25px;
+            background: linear-gradient(90deg, #42a5f5 0%, #1976d2 100%);
+            border: 3px solid #01579b;
+            border-radius: 8px;
+            left: -8px;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .pipe-top {
+            top: 0;
+        }
+        
+        .pipe-top::before {
+            bottom: -3px;
+        }
+        
+        .pipe-bottom {
+            bottom: 0;
+        }
+        
+        .pipe-bottom::before {
+            top: -3px;
+        }
+        
+        .pipe::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 8px,
+                rgba(255,255,255,0.1) 8px,
+                rgba(255,255,255,0.1) 10px
+            );
+        }
+        
+        .score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #01579b;
+            font-size: 24px;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+        
+        .level {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #01579b;
+            font-size: 18px;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+        
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(227, 242, 253, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .title {
+            color: #01579b;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+        
+        .subtitle {
+            color: #0288d1;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #29b6f6 0%, #0288d1 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-family: 'Fredoka One', cursive;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(2, 136, 209, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 136, 209, 0.4);
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions {
+            color: #0288d1;
+            font-size: 14px;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+        
+        .high-score {
+            color: #01579b;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="clouds">
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+            <div class="cloud cloud3"></div>
+            <div class="cloud cloud4"></div>
+        </div>
+        <div class="score">Skor: <span id="score">0</span></div>
+        <div class="level">Level: <span id="level">Mudah</span></div>
+        <div class="bird" id="bird">
+            <div class="ear-left" id="earLeft"></div>
+            <div class="ear-right" id="earRight"></div>
+        </div>
+        
+        <div class="start-screen" id="startScreen">
+            <div class="title">🐰 Kelinci Flappy</div>
+            <div class="subtitle">Pilih tingkat kesulitan:</div>
+            <div class="difficulty-buttons">
+                <button class="button" onclick="startGame('easy')">🌟 Mudah</button>
+                <button class="button" onclick="startGame('medium')">⭐ Sedang</button>
+                <button class="button" onclick="startGame('hard')">💫 Sulit</button>
+            </div>
+            <div class="high-score">Skor Tertinggi: <span id="highScore">0</span></div>
+            <div class="instructions">
+                Klik atau tekan SPASI untuk terbang!<br>
+                Hindari pipa biru untuk mendapat skor tinggi
+            </div>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen" style="display: none;">
+            <div class="title">Game Over!</div>
+            <div class="subtitle">Skor Akhir: <span id="finalScore">0</span></div>
+            <div class="high-score">Skor Tertinggi: <span id="newHighScore">0</span></div>
+            <button class="button" onclick="showStartScreen()">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        class FlappyBird {
+            constructor() {
+                this.bird = document.getElementById('bird');
+                this.gameContainer = document.querySelector('.game-container');
+                this.scoreElement = document.getElementById('score');
+                this.levelElement = document.getElementById('level');
+                
+                this.birdY = 250;
+                this.birdVelocity = 0;
+                this.gravity = 0.5;
+                this.jumpPower = -8;
+                this.score = 0;
+                this.pipes = [];
+                this.gameRunning = false;
+                this.difficulty = 'easy';
+                
+                this.difficulties = {
+                    easy: { 
+                        pipeSpeed: 2, 
+                        pipeGap: 180, 
+                        pipeFrequency: 120,
+                        name: 'Mudah'
+                    },
+                    medium: { 
+                        pipeSpeed: 3, 
+                        pipeGap: 150, 
+                        pipeFrequency: 100,
+                        name: 'Sedang'
+                    },
+                    hard: { 
+                        pipeSpeed: 4, 
+                        pipeGap: 120, 
+                        pipeFrequency: 80,
+                        name: 'Sulit'
+                    }
+                };
+                
+                this.frameCount = 0;
+                this.highScore = localStorage.getItem('flappyHighScore') || 0;
+                document.getElementById('highScore').textContent = this.highScore;
+                
+                this.setupEventListeners();
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('click', () => this.jump());
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.jump();
+                    }
+                });
+            }
+            
+            jump() {
+                if (this.gameRunning) {
+                    this.birdVelocity = this.jumpPower;
+                    this.bird.style.transform = 'rotate(-20deg)';
+                    
+                    // Animate ears bounce when jumping
+                    const earLeft = document.getElementById('earLeft');
+                    const earRight = document.getElementById('earRight');
+                    
+                    earLeft.classList.remove('ear-bounce');
+                    earRight.classList.remove('ear-bounce-right');
+                    
+                    setTimeout(() => {
+                        earLeft.classList.add('ear-bounce');
+                        earRight.classList.add('ear-bounce-right');
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        if (this.gameRunning) {
+                            this.bird.style.transform = 'rotate(0deg)';
+                        }
+                    }, 150);
+                }
+            }
+            
+            startGame(difficulty) {
+                this.difficulty = difficulty;
+                this.birdY = 250;
+                this.birdVelocity = 0;
+                this.score = 0;
+                this.pipes = [];
+                this.frameCount = 0;
+                this.gameRunning = true;
+                
+                this.levelElement.textContent = this.difficulties[difficulty].name;
+                this.scoreElement.textContent = '0';
+                
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('gameOverScreen').style.display = 'none';
+                
+                this.gameLoop();
+            }
+            
+            createPipe() {
+                const config = this.difficulties[this.difficulty];
+                const pipeHeight = Math.random() * 200 + 100;
+                
+                const topPipe = document.createElement('div');
+                topPipe.className = 'pipe pipe-top';
+                topPipe.style.height = pipeHeight + 'px';
+                topPipe.style.left = '400px';
+                
+                const bottomPipe = document.createElement('div');
+                bottomPipe.className = 'pipe pipe-bottom';
+                bottomPipe.style.height = (600 - pipeHeight - config.pipeGap) + 'px';
+                bottomPipe.style.left = '400px';
+                
+                this.gameContainer.appendChild(topPipe);
+                this.gameContainer.appendChild(bottomPipe);
+                
+                this.pipes.push({
+                    top: topPipe,
+                    bottom: bottomPipe,
+                    x: 400,
+                    scored: false
+                });
+            }
+            
+            updatePipes() {
+                const config = this.difficulties[this.difficulty];
+                
+                for (let i = this.pipes.length - 1; i >= 0; i--) {
+                    const pipe = this.pipes[i];
+                    pipe.x -= config.pipeSpeed;
+                    
+                    pipe.top.style.left = pipe.x + 'px';
+                    pipe.bottom.style.left = pipe.x + 'px';
+                    
+                    // Check for scoring
+                    if (!pipe.scored && pipe.x < 80) {
+                        pipe.scored = true;
+                        this.score++;
+                        this.scoreElement.textContent = this.score;
+                    }
+                    
+                    // Remove pipes that are off screen
+                    if (pipe.x < -60) {
+                        pipe.top.remove();
+                        pipe.bottom.remove();
+                        this.pipes.splice(i, 1);
+                    }
+                }
+            }
+            
+            checkCollision() {
+                const birdRect = {
+                    left: 80,
+                    right: 120,
+                    top: this.birdY,
+                    bottom: this.birdY + 40
+                };
+                
+                // Check ground and ceiling collision
+                if (this.birdY <= 0 || this.birdY >= 560) {
+                    return true;
+                }
+                
+                // Check pipe collision
+                for (const pipe of this.pipes) {
+                    if (birdRect.right > pipe.x && birdRect.left < pipe.x + 60) {
+                        const topPipeHeight = parseInt(pipe.top.style.height);
+                        const bottomPipeTop = 600 - parseInt(pipe.bottom.style.height);
+                        
+                        if (birdRect.top < topPipeHeight || birdRect.bottom > bottomPipeTop) {
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                
+                // Update high score
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('flappyHighScore', this.highScore);
+                }
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('newHighScore').textContent = this.highScore;
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                
+                // Clean up pipes
+                this.pipes.forEach(pipe => {
+                    pipe.top.remove();
+                    pipe.bottom.remove();
+                });
+                this.pipes = [];
+            }
+            
+            gameLoop() {
+                if (!this.gameRunning) return;
+                
+                // Update bird physics
+                this.birdVelocity += this.gravity;
+                this.birdY += this.birdVelocity;
+                this.bird.style.top = this.birdY + 'px';
+                
+                // Rotate bird based on velocity
+                const rotation = Math.min(Math.max(this.birdVelocity * 3, -30), 30);
+                this.bird.style.transform = `rotate(${rotation}deg)`;
+                
+                // Ears now stay upright naturally like normal rabbits
+                
+                // Create new pipes
+                const config = this.difficulties[this.difficulty];
+                if (this.frameCount % config.pipeFrequency === 0) {
+                    this.createPipe();
+                }
+                
+                // Update pipes
+                this.updatePipes();
+                
+                // Check collision
+                if (this.checkCollision()) {
+                    this.gameOver();
+                    return;
+                }
+                
+                this.frameCount++;
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            showStartScreen() {
+                document.getElementById('gameOverScreen').style.display = 'none';
+                document.getElementById('startScreen').style.display = 'flex';
+            }
+        }
+        
+        // Initialize game
+        const game = new FlappyBird();
+        
+        // Global functions for buttons
+        function startGame(difficulty) {
+            game.startGame(difficulty);
+        }
+        
+        function showStartScreen() {
+            game.showStartScreen();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96ffad3ee7eafd8f',t:'MTc1NTMzNDE0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
